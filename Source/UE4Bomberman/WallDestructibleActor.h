@@ -15,6 +15,10 @@ public:
 	// Sets default values for this actor's properties
 	AWallDestructibleActor();
 
+	// Wall mesh
+	UPROPERTY(EditDefaultsOnly, Category = Wall)
+	UStaticMeshComponent *Wall;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

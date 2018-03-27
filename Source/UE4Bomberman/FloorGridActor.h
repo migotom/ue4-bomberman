@@ -8,6 +8,7 @@
 
 #include "FloorGridActor.generated.h"
 
+class AWallDestructibleActor;
 
 // Map grid definition helper enum (required for randomize fields)
 UENUM(BlueprintType)
@@ -25,9 +26,11 @@ struct FGridElement {
 	GENERATED_BODY()
 
 public:
-	EGridElementType val = EGridElementType::F_Empty;
+	EGridElementType val = EGridElementType::F_Empty; // Type of object placed on field
+	AActor *element = nullptr;	// Optional, pointer to actor placed on field
 
 	inline void SetType(EGridElementType v) { val = v; }
+	inline void SetActor(AActor* a) { element = a; }
 };
 
 USTRUCT()
@@ -43,8 +46,8 @@ public:
 
 	TArray<FGridElement> GridElement;
 
-	FGridElement operator[] (int32 i) {
-		return GridElement[i];
+	FGridElement* operator[] (int32 i) {
+		return &GridElement[i];
 	}
 };
 
@@ -96,6 +99,17 @@ public:
 	UStaticMesh *IndestrunctibleBox;
 
 
+	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	TSubclassOf<AWallDestructibleActor> DestructibleWall;
+
+	// Seed for randomize map
+	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	int32 Seed = 78648;
+
+	// Probablity of placing destructible grid on floor grid element
+	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	float DestructibleWallsProbability = 0.75f;
+
 	// Map size X
 	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
 	int SizeX = 13;
@@ -133,6 +147,8 @@ public:
 
 	// Generate floor grid on construct
 	virtual void OnConstruction(const FTransform& Transform) override;	
+
+	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
 private:
 	void CleanupInstances();

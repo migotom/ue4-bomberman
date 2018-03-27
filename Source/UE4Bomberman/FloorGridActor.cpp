@@ -1,13 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "FloorGridActor.h"
-
+#include "WallDestructibleActor.h"
 
 // Sets default values
 AFloorGridActor::AFloorGridActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	// Playfield will not require to tick
+	PrimaryActorTick.bCanEverTick = false;
 
 	// Create instanced static meshes 
 	Floor = CreateDefaultSubobject<UInstancedStaticMeshComponent>(TEXT("FloorPlate"));
@@ -116,21 +116,66 @@ void AFloorGridActor::OnConstruction(const FTransform& Transform)
 	// Indestrucntible walls grid
 	if (IndestrunctibleBox)
 	{
-		FTransform xTransform = Transform;
-		// Place wall every "IndestrunctibleWallsOffset" step
-		for (int i = 0; i < (SizeX - 1) / IndestrunctibleWallsOffset; i++) {
-			xTransform.AddToTranslation(xOffset*IndestrunctibleWallsOffset);
-			FTransform yTransform = xTransform;
+		// Initial grid offset 
+		FTransform baseTransform = Transform;
+		baseTransform.AddToTranslation(xOffset);
+		baseTransform.AddToTranslation(yOffset);
 
-			for (int j = 0; j < (SizeY - 1) / IndestrunctibleWallsOffset; j++) {
-				yTransform.AddToTranslation(yOffset*IndestrunctibleWallsOffset);
+		// Place wall every "IndestrunctibleWallsOffset" step, excluding fields near borders
+		for (int i = 1; i < SizeX - 1 ; i+= IndestrunctibleWallsOffset) {
+			FTransform xTransform = baseTransform;
+			xTransform.AddToTranslation(xOffset*i);
+
+			for (int j = 1; j < SizeY - 1 ; j+= IndestrunctibleWallsOffset) {
+				FTransform yTransform = xTransform;
+				yTransform.AddToTranslation(yOffset*j);
 				Indestrunctible->AddInstanceWorldSpace(yTransform);
 				
-				// Store information about walls for next steps
-				Grid[i][j].SetType(EGridElementType::F_UndestructibleWall);
+				// Store information about wall position for next steps
+				Grid[i][j]->val = EGridElementType::F_UndestructibleWall;
 			}
 		}
 	}
+
+	FMath::RandInit(Seed);
+
+	//
+	// Destructible walls grid
+	if (DestructibleWall)
+	{
+		FTransform xTransform = Transform;
+		// Place wall every "IndestrunctibleWallsOffset" step
+		for (int i = 0; i < SizeX; i++) {
+			xTransform.AddToTranslation(xOffset);
+			FTransform yTransform = xTransform;
+
+			for (int j = 0; j < SizeY; j++) {
+				yTransform.AddToTranslation(yOffset);
+				if (i == 0 && j == 0 || i == 0 && j == SizeY || i == SizeX && j == 0 || i == SizeX && j == SizeY) {
+					continue; // skip corners for Players spawns
+				}
+				// Place destructible walls only on empty fields
+				if (FMath::RandRange(0.f,1.f) > DestructibleWallsProbability && Grid[i][j]->val == EGridElementType::F_Empty) {
+					FActorSpawnParameters SpawnInfo;
+					AWallDestructibleActor *Wall = GetWorld()->SpawnActor<AWallDestructibleActor>(DestructibleWall, yTransform.GetLocation(), yTransform.GetRotation().Rotator(), SpawnInfo);
+
+					// Store information about walls for next steps
+					Grid[i][j]->val = EGridElementType::F_DestructibleWall;
+					Grid[i][j]->element = Wall;
+				}
+				
+			}
+		}
+	}
+}
+
+// 
+// Editor cleanup
+
+void AFloorGridActor::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
+{
+	CleanupInstances();
+	Super::PostEditChangeProperty(PropertyChangedEvent);
 }
 
 void AFloorGridActor::CleanupInstances()
@@ -138,4 +183,14 @@ void AFloorGridActor::CleanupInstances()
 	Floor->ClearInstances();
 	Border->ClearInstances();
 	Indestrunctible->ClearInstances();
+
+	// Clear Grid from spawned actors
+	for (auto &row : Grid) {
+		for (auto &field : row.GridElement) {
+			if (field.element) {
+				field.element->Destroy();
+				field.val = EGridElementType::F_Empty;
+			}
+		}
+	}
 }

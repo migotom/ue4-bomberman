@@ -17,6 +17,7 @@ enum class EGridElementType : uint8
 	F_Empty				 	UMETA(DisplayName = "Empty field"),
 	F_DestructibleWall	 	UMETA(DisplayName = "Destructible wall"),
 	F_UndestructibleWall 	UMETA(DisplayName = "Undestructible wall"),
+	F_PlayerStart		 	UMETA(DisplayName = "Player start location"),
 	F_Enemy				 	UMETA(DisplayName = "Enemy"),
 };
 
@@ -69,65 +70,65 @@ public:
 	//
 
 	// Floor grid instanced meshes 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UInstancedStaticMeshComponent* Floor;
 
 	// Floor plate static mesh (used to fill floor by instanced static mesh comp)
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UStaticMesh *FloorPlate;
 
 	// Border
 	//
 
 	// Border instanced meshes 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UInstancedStaticMeshComponent* Border;
 
 	// Border box static mesh (used to fill border around floor by instasnced static mesh comp)
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UStaticMesh *BorderBox;
 
 	// Inside indestrucntible walls
 	//
 
 	// Indestructible walls instanced meshes 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UInstancedStaticMeshComponent* Indestrunctible;
 
 	// Border box static mesh (used to fill border around floor by instasnced static mesh comp)
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UStaticMesh *IndestrunctibleBox;
 
 
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	TSubclassOf<AWallDestructibleActor> DestructibleWall;
 
 	// Seed for randomize map
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	int32 Seed = 78648;
 
 	// Probablity of placing destructible grid on floor grid element
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	float DestructibleWallsProbability = 0.75f;
 
 	// Map size X
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	int SizeX = 13;
 
 	// Map size Y
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	int SizeY = 11;
 
 	// Map grid element size (in Unreal units)
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	float Spacing = 100.f;
 
 	// Map floor Z offset (shift plane/walls by this value)
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	float FloorZOffset = 20.f;
 
 	// Spacing between indestructible blocks inside map
-	UPROPERTY(EditDefaultsOnly, Category = FloorGrid)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FloorGrid, Meta = (ExposeOnSpawn = true))
 	float IndestrunctibleWallsOffset = 2;
 
 

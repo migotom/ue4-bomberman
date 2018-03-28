@@ -2,7 +2,7 @@
 
 #include "FloorGridActor.h"
 #include "WallDestructibleActor.h"
-
+#include "GameFramework/PlayerStart.h"
 // Sets default values
 AFloorGridActor::AFloorGridActor()
 {
@@ -45,6 +45,7 @@ void AFloorGridActor::OnConstruction(const FTransform& Transform)
 	FVector xOffset(Spacing, 0.f, 0.f);
 	FVector yOffset(0.f, Spacing, 0.f);
 	FVector zOffset(0.f, 0.f, FloorZOffset);
+	FVector spawnOffset(0.f, 0.f, Spacing/2.f);
 
 	//
 	// Field data initialization
@@ -151,9 +152,27 @@ void AFloorGridActor::OnConstruction(const FTransform& Transform)
 
 			for (int j = 0; j < SizeY; j++) {
 				yTransform.AddToTranslation(yOffset);
-				if (i == 0 && j == 0 || i == 0 && j == SizeY || i == SizeX && j == 0 || i == SizeX && j == SizeY) {
-					continue; // skip corners for Players spawns
+				if ((i == 0 && j == 0) || (i == 0 && j == SizeY-1) || (i == SizeX-1 && j == 0) || (i == SizeX-1 && j == SizeY-1)) {
+					// Add player start locations at corners
+					FActorSpawnParameters SpawnInfo;
+					SpawnInfo.Owner = this;
+					SpawnInfo.Instigator = NULL;
+					SpawnInfo.bDeferConstruction = false;
+					FTransform playerTransform = yTransform; // TODO add correct rotations for j position equals SizeY-1
+					playerTransform.AddToTranslation(spawnOffset);
+					APlayerStart *Wall = GetWorld()->SpawnActor<APlayerStart>(APlayerStart::StaticClass(), playerTransform.GetLocation(), playerTransform.GetRotation().Rotator(), SpawnInfo);
+					
+					// Store information about walls for next steps
+					Grid[i][j]->val = EGridElementType::F_DestructibleWall;
+					Grid[i][j]->element = Wall;
+					continue; 
 				}
+
+				if ((i == 0 && (j == 1 || j == SizeY-2)) || (i == 1 && (j == 0 || j == SizeY-1)) || (i == SizeX-2 && (j == 0 || j == SizeY-2)) || (i == SizeX-1 && (j == 1 || j == SizeY-2))) {
+					UE_LOG(LogTemp, Warning, TEXT("Skiping placing destructible wall at pos i=%d i=%d"),i,j)
+					continue; // Skip fields near players spawn positions to allow them move at least 1 field in two directions
+				}
+
 				// Place destructible walls only on empty fields
 				if (FMath::RandRange(0.f,1.f) > DestructibleWallsProbability && Grid[i][j]->val == EGridElementType::F_Empty) {
 					FActorSpawnParameters SpawnInfo;

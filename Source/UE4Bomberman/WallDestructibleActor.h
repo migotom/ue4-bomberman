@@ -16,7 +16,7 @@ public:
 	AWallDestructibleActor();
 
 	// Wall mesh
-	UPROPERTY(EditDefaultsOnly, Category = Wall)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Wall)
 	UStaticMeshComponent *Wall;
 
 protected:

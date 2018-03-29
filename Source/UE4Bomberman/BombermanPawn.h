@@ -8,6 +8,7 @@
 #include "BombermanPawn.generated.h"
 
 class UBombermanMovementComponent;
+class UBombermanInventoryMngrComponent;
 
 UCLASS()
 class UE4BOMBERMAN_API ABombermanPawn : public APawn
@@ -25,8 +26,13 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
 	UStaticMeshComponent *BombermanMesh;
 
+	// Bomberman movement and rotation control component
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
 	UBombermanMovementComponent *MovementComponent;
+	
+	// Bomberman simple inventory manager (controls pickups)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
+	UBombermanInventoryMngrComponent *InventoryManager;
 
 protected:
 	// Called when the game starts or when spawned

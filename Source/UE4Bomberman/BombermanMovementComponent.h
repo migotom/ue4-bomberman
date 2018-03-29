@@ -54,5 +54,4 @@ public:
 	// Movement and reotation control methods, initial version, simple physics "add force"
 	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveRight(float val);
-	
 };

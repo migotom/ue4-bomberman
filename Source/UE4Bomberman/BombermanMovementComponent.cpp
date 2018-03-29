@@ -30,7 +30,8 @@ void UBombermanMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if (OwnerMovementComponent) {
-		// TODO snaping into grid
+		// TODO snaping into grid (in case of optional camera switch to 3rd person like, AddForce methos is mote suitable and natural in 3d)
+		// TODO consider replacing this with SetActorLocation to smooth sweep between grid fields (more like traditional 2D version, probably better for mobile)
 		OwnerMovementComponent->AddForce(MovementDirection);
 		
 		// Set mesh rotation 

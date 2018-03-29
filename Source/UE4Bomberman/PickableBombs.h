@@ -4,31 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
 #include "Destroyable_Interface.h"
-#include "WallDestructibleActor.generated.h"
+#include "PickableBombs.generated.h"
 
 UCLASS()
-class UE4BOMBERMAN_API AWallDestructibleActor : public AActor, public IDestroyableInterface
+class UE4BOMBERMAN_API APickableBombs : public AActor, public IDestroyableInterface
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AWallDestructibleActor();
+	APickableBombs();
 
-	// Wall mesh
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Wall)
-	UStaticMeshComponent *Wall;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Pickable)
+	USphereComponent *Collision;
 
-	//
-	// Pickables
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Wall)
-	TArray<TSubclassOf<AActor>> Pickables;
+	// Pickable mesh
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Pickable)
+	UStaticMeshComponent *Mesh;
 
-	// Chance that destruction of wall will spawn loot item
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Wall)
-	float PickableLootProbability = 0.3f;
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,7 +33,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Destroy a wall
+	// Destroy a pickable item on blast
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Boom")
 	bool Kill();
 	virtual bool Kill_Implementation() override;

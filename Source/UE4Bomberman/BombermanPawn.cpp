@@ -3,6 +3,7 @@
 #include "BombermanPawn.h"
 #include "BombermanMovementComponent.h"
 #include "BombermanInventoryMngrComponent.h"
+#include "Pickable_Interface.h"
 #include "Engine.h"
 
 // Sets default values
@@ -38,6 +39,7 @@ ABombermanPawn::ABombermanPawn()
 	BombermanMesh->AttachToComponent(Collision, FAttachmentTransformRules::KeepRelativeTransform);
 	BombermanMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	
 	// Set movement component
 	MovementComponent = CreateDefaultSubobject<UBombermanMovementComponent>(TEXT("Movement component"));
 	
@@ -49,6 +51,8 @@ ABombermanPawn::ABombermanPawn()
 void ABombermanPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	Collision->OnComponentBeginOverlap.AddDynamic(this, &ABombermanPawn::OnOverlapBegin);
+
 	MovementComponent->Initialize(Collision, BombermanMesh, this);
 	InventoryManager->Initialize(this);
 }
@@ -65,3 +69,22 @@ void ABombermanPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
+bool ABombermanPawn::Kill_Implementation()
+{
+	// TODO add animation
+
+	UE_LOG(LogTemp, Warning, TEXT("ABombermanPawn::Kill_Implementation()"));
+	Destroy();
+
+	// Triger end game page
+	return true;
+}
+
+void ABombermanPawn::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ABombermanPawn::OnBeginOverlap"));
+	IPickableInterface* PickableActor = Cast<IPickableInterface>(OtherActor);
+	if (PickableActor) {
+		PickableActor->Execute_Pickup(OtherActor, this, InventoryManager);
+	}
+}

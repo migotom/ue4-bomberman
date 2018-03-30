@@ -6,10 +6,14 @@
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "Destroyable_Interface.h"
+#include "Pickable_Interface.h"
 #include "PickableBombs.generated.h"
 
+class ABombermanPawn;
+class UBombermanInventoryMngrComponent;
+
 UCLASS()
-class UE4BOMBERMAN_API APickableBombs : public AActor, public IDestroyableInterface
+class UE4BOMBERMAN_API APickableBombs : public AActor, public IDestroyableInterface, public IPickableInterface
 {
 	GENERATED_BODY()
 	
@@ -23,7 +27,14 @@ public:
 	// Pickable mesh
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Pickable)
 	UStaticMeshComponent *Mesh;
+	
+	// How many bombps bomberman will have after picking up this item
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Pickable)
+	int MaxBombsIncreaseFactor = 3;
 
+	// Animation rotation speed factor
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Pickable)
+	float AnimRotationSpeed = 60.f;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -38,4 +49,8 @@ public:
 	bool Kill();
 	virtual bool Kill_Implementation() override;
 	
+	// Pickup item
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+	bool Pickup(ABombermanPawn *bomberman, UBombermanInventoryMngrComponent *inventorymanager);
+	virtual bool Pickup_Implementation(ABombermanPawn *bomberman, UBombermanInventoryMngrComponent *inventorymanager) override;
 };

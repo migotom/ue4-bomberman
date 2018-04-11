@@ -10,6 +10,7 @@
 
 class UBombermanMovementComponent;
 class UBombermanInventoryMngrComponent;
+class ABombermanPlayerState;
 
 UCLASS()
 class UE4BOMBERMAN_API ABombermanPawn : public APawn, public IDestroyableInterface
@@ -21,19 +22,23 @@ public:
 	ABombermanPawn();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
-	USphereComponent *Collision;
+	USphereComponent *Collision = nullptr;
 
 	// Bomberman mesh TODO replace with skeletal mesh / just for test case use static one
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
-	UStaticMeshComponent *BombermanMesh;
+	UStaticMeshComponent *BombermanMesh = nullptr;
 
 	// Bomberman movement and rotation control component
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
-	UBombermanMovementComponent *MovementComponent;
+	UBombermanMovementComponent *MovementComponent = nullptr;
 	
 	// Bomberman simple inventory manager (controls pickups)
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
-	UBombermanInventoryMngrComponent *InventoryManager;
+	UBombermanInventoryMngrComponent *InventoryManager = nullptr;
+
+	// Player's state class (keeping and replicating all player's important data)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomberman)
+	ABombermanPlayerState *BombermanPlayerState = nullptr;
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,6 +51,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	// Check if Player's Bomberman overlap any of pickable items
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 	

@@ -49,7 +49,7 @@ public:
 	bool Kill();
 	virtual bool Kill_Implementation() override;
 	
-	// Pickup item
+	// Pickup this bombs into Player's inventory
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
 	bool Pickup(ABombermanPawn *bomberman, UBombermanInventoryMngrComponent *inventorymanager);
 	virtual bool Pickup_Implementation(ABombermanPawn *bomberman, UBombermanInventoryMngrComponent *inventorymanager) override;

@@ -75,3 +75,7 @@ Intermediate/*
 DerivedDataCache/*
 AssetsSource/backup/
 Content/StarterContent/
+Content/InfinityBladeEffects/
+AssetsSource/Bomb_autosave_0.spp
+AssetsSource/Heart.fbx
+*.spp

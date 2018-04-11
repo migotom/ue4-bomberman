@@ -2,6 +2,9 @@
 
 #include "BombermanInventoryMngrComponent.h"
 #include "BombermanPawn.h"
+#include "BombermanPlayerState.h"
+#include "BombermanGameModeBase.h"
+#include "FloorGridActor.h"
 #include "BombActor.h"
 
 #include "Engine.h"
@@ -35,23 +38,37 @@ void UBombermanInventoryMngrComponent::TickComponent(float DeltaTime, ELevelTick
 	// ...
 }
 
-void UBombermanInventoryMngrComponent::Initialize(ABombermanPawn *setowner)
+void UBombermanInventoryMngrComponent::Initialize(ABombermanPawn *setowner, ABombermanPlayerState *setplayerstate)
 {
 	Owner = setowner;
+	PlayerState = setplayerstate;
 }
 
 
 void UBombermanInventoryMngrComponent::PlaceBomb()
 {
-	if (BombsCount && BombClass) {
+	const ABombermanGameModeBase *GameMode = Cast<ABombermanGameModeBase>(GetWorld()->GetAuthGameMode());
+	if (GameMode && GameMode->Map && PlayerState && PlayerState->BombsCount && BombClass) {
 		FActorSpawnParameters SpawnInfo;
 		SpawnInfo.Owner = Owner;
 		SpawnInfo.Instigator = Owner;
 		SpawnInfo.bDeferConstruction = false;
-		FTransform bombTransform = FTransform(Owner->GetActorLocation()); // TODO snap bomb position to grid, allow placing only one bomb at grid position (do it through FloorGridActor)
 
-		ABombActor *Bomb = GetWorld()->SpawnActor<ABombActor>(BombClass, bombTransform.GetLocation(), bombTransform.GetRotation().Rotator(), SpawnInfo);
-		Bomb->Initialize(this);
-		BombsCount--;
+		// Calculate snapped position of bomb
+		FTransform bombTransform = FTransform(Owner->GetActorLocation());
+		FVector BombPosition = GameMode->Map->SnapIntoGrid(bombTransform.GetLocation());
+
+		// TODO avoid placing bomb at field where bomb is already
+
+		ABombActor *Bomb = GetWorld()->SpawnActor<ABombActor>(BombClass, BombPosition, bombTransform.GetRotation().Rotator(), SpawnInfo);
+		Bomb->Initialize(this, PlayerState);
+		PlayerState->BombsCount--;
+	}
+}
+
+void UBombermanInventoryMngrComponent::AddBombs(int amount)
+{
+	if (PlayerState) {
+		PlayerState->BombsCount+=amount;
 	}
 }

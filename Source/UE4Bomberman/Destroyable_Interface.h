@@ -13,6 +13,7 @@ class IDestroyableInterface
 	GENERATED_BODY()
 
 public:
+	// Call to kill and destroy actor
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Destroyable Actor")
 	bool Kill();
 };

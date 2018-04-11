@@ -27,13 +27,18 @@ struct FGridElement {
 	GENERATED_BODY()
 
 public:
-	EGridElementType val = EGridElementType::F_Empty; // Type of object placed on field
-	AActor *element = nullptr;	// Optional, pointer to actor placed on field
 
-	inline void SetType(EGridElementType v) { val = v; }
-	inline void SetActor(AActor* a) { element = a; }
+	// Type of object placed on field
+	EGridElementType ElementType = EGridElementType::F_Empty;
+
+	// Optional, pointer to actor placed on field
+	AActor *Element = nullptr;
+
+	inline void SetType(EGridElementType v) { ElementType = v; }
+	inline void SetActor(AActor* a) { Element = a; }
 };
 
+// Map grid row
 USTRUCT()
 struct FGridRow {
 	GENERATED_BODY()
@@ -41,12 +46,14 @@ struct FGridRow {
 public:
 	FGridRow() {};
 
+	// Constructor initializes array of elements
 	FGridRow(int size) {
 		GridElement.SetNum(size);
 	};
 
 	TArray<FGridElement> GridElement;
 
+	// [] operator for easy access of two dimension grid array
 	FGridElement* operator[] (int32 i) {
 		return &GridElement[i];
 	}
@@ -99,7 +106,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	UStaticMesh *IndestrunctibleBox;
 
-
+	// Class of destructible wall (can be a BP with custom mesh, material, etc for this level)
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = FloorGrid)
 	TSubclassOf<AWallDestructibleActor> DestructibleWall;
 
@@ -149,8 +156,18 @@ public:
 	// Generate floor grid on construct
 	virtual void OnConstruction(const FTransform& Transform) override;	
 
+	// Clear instances on editing any property
 	virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
 
+
+	// Snap provided position into near grid element
+	// @param[in]	Position	Unsnapped position 
+	// @return Snapped position
+	UFUNCTION(BlueprintCallable, Category = FloorGrid)
+	FVector SnapIntoGrid(FVector Position);
+
 private:
+
+	// Cleanup all instanced meshes and grid array
 	void CleanupInstances();
 };

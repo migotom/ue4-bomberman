@@ -2,6 +2,7 @@
 
 #include "BombActor.h"
 #include "BombermanInventoryMngrComponent.h"
+#include "BombermanPlayerState.h"
 #include "Engine.h"
 
 // Sets default values
@@ -31,54 +32,66 @@ void ABombActor::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Explode bomb after defined delay
-	if (!exloded && FPlatformTime::Seconds() > BombPlacetAt + (double)Timer) {
+	if (!bExploded && FPlatformTime::Seconds() > BombPlacetAt + (double)Timer) {
 		Kill();		
 	}
 }
 
 // Initialize inventory manager
-void ABombActor::Initialize(UBombermanInventoryMngrComponent *setinvmanager)
+void ABombActor::Initialize(UBombermanInventoryMngrComponent *setinvmanager, ABombermanPlayerState *setplayerstate)
 {
 	OwnerInventoryManager = setinvmanager;
+	PlayerState = setplayerstate;
 }
 
 // Explode bomb
 bool ABombActor::Kill_Implementation()
 {
-	if (exloded) {
+	if (bExploded) {
 		return true;
 	}
-	exloded = true;
+	bExploded = true;
 
 	FVector TraceStart = Mesh->GetComponentLocation();
 
+	float BlastExtension = 0.f;
+	if (PlayerState) {
+		BlastExtension = PlayerState->BombBlastExtraRadious * 100.f;
+	}
+	
+	TArray<AActor *> HitedActors;
+
 	for (auto Direction : Directions)
 	{
-		FVector TraceEnd = TraceStart + Direction;
+		FVector TraceEnd = TraceStart + (Direction * (BlastExtension + BlastRadious));
 		TArray<FHitResult> HitResults;
+		
 
-		// Trace line from bomb location into one of axis
+		// Trace line from bomb location into one of four blast axis
 		DrawDebugLine(GetWorld(), TraceStart, TraceEnd, FColor::Red, false, 1.0f); // Debug
 		GetWorld()->LineTraceMultiByChannel(HitResults, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
 		for (auto Hit : HitResults) {
 			if (Hit.Actor.IsValid()) {
 				UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *Hit.Actor->GetName());
-				// Check if hit actor implements Destroyable interface (eg. bombs, destroyable walls, pickups, players)
-				IDestroyableInterface* DestroyableActor = Cast<IDestroyableInterface>(Hit.Actor.Get());
-				if (DestroyableActor) {
-					DestroyableActor->Execute_Kill(Hit.Actor.Get()); // initiate kill/destroy sequence for hit actor
-				}
+				HitedActors.AddUnique(Hit.Actor.Get());				
 			}
-		}
-	
+		}			
 		// TODO
 		// Generace particle effects with explosion animation
+	}
+
+	for (auto Actor : HitedActors) {
+		// Check if hit actor implements Destroyable interface (eg. bombs, destroyable walls, pickups, players)
+		IDestroyableInterface* DestroyableActor = Cast<IDestroyableInterface>(Actor);
+		if (DestroyableActor) {
+			DestroyableActor->Execute_Kill(Actor); // initiate kill/destroy sequence for hit actor
+		}
 	}
 
 	Mesh->DestroyComponent();
 
 	if (OwnerInventoryManager) {
-		OwnerInventoryManager->BombsCount++;
+		OwnerInventoryManager->AddBombs(1);
 	}
 
 	FTimerHandle Timer;

@@ -52,7 +52,7 @@ bool APickableBombs::Pickup_Implementation(ABombermanPawn *bomberman, UBomberman
 	UE_LOG(LogTemp, Warning, TEXT("APickableBombs::Pickup_Implementation()"));
 	if (inventorymanager) {
 		inventorymanager->BombsMax += 3;
-		inventorymanager->BombsCount += 3;
+		inventorymanager->AddBombs(3);
 	}
 	
 

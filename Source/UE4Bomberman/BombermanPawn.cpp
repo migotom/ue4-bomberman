@@ -3,6 +3,7 @@
 #include "BombermanPawn.h"
 #include "BombermanMovementComponent.h"
 #include "BombermanInventoryMngrComponent.h"
+#include "BombermanPlayerState.h"
 #include "Pickable_Interface.h"
 #include "Engine.h"
 
@@ -53,8 +54,15 @@ void ABombermanPawn::BeginPlay()
 	Super::BeginPlay();
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &ABombermanPawn::OnOverlapBegin);
 
-	MovementComponent->Initialize(Collision, BombermanMesh, this);
-	InventoryManager->Initialize(this);
+	BombermanPlayerState = Cast<ABombermanPlayerState>(GetController()->PlayerState);
+
+	if (BombermanPlayerState)
+	{
+		MovementComponent->Initialize(Collision, BombermanMesh, this);
+		InventoryManager->Initialize(this, BombermanPlayerState);
+	}
+
+	
 }
 
 // Called every frame
@@ -74,9 +82,18 @@ bool ABombermanPawn::Kill_Implementation()
 	// TODO add animation
 
 	UE_LOG(LogTemp, Warning, TEXT("ABombermanPawn::Kill_Implementation()"));
-	Destroy();
-
-	// Triger end game page
+	if (BombermanPlayerState)
+	{	
+		BombermanPlayerState->Lives--;
+		if (BombermanPlayerState->Lives == 0) {
+			BombermanPlayerState->BombsCount = 0;
+			Destroy();
+			// Triger end game page
+		}
+		else {
+			// TODO animate death
+		}
+	}		
 	return true;
 }
 

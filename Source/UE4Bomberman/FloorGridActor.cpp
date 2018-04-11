@@ -133,7 +133,7 @@ void AFloorGridActor::OnConstruction(const FTransform& Transform)
 				Indestrunctible->AddInstanceWorldSpace(yTransform);
 				
 				// Store information about wall position for next steps
-				Grid[i][j]->val = EGridElementType::F_UndestructibleWall;
+				Grid[i][j]->ElementType = EGridElementType::F_UndestructibleWall;
 			}
 		}
 	}
@@ -163,8 +163,8 @@ void AFloorGridActor::OnConstruction(const FTransform& Transform)
 					APlayerStart *Wall = GetWorld()->SpawnActor<APlayerStart>(APlayerStart::StaticClass(), playerTransform.GetLocation(), playerTransform.GetRotation().Rotator(), SpawnInfo);
 					
 					// Store information about walls for next steps
-					Grid[i][j]->val = EGridElementType::F_DestructibleWall;
-					Grid[i][j]->element = Wall;
+					Grid[i][j]->ElementType = EGridElementType::F_DestructibleWall;
+					Grid[i][j]->Element = Wall;
 					continue; 
 				}
 
@@ -174,13 +174,13 @@ void AFloorGridActor::OnConstruction(const FTransform& Transform)
 				}
 
 				// Place destructible walls only on empty fields
-				if (FMath::RandRange(0.f,1.f) > DestructibleWallsProbability && Grid[i][j]->val == EGridElementType::F_Empty) {
+				if (FMath::RandRange(0.f,1.f) > DestructibleWallsProbability && Grid[i][j]->ElementType == EGridElementType::F_Empty) {
 					FActorSpawnParameters SpawnInfo;
 					AWallDestructibleActor *Wall = GetWorld()->SpawnActor<AWallDestructibleActor>(DestructibleWall, yTransform.GetLocation(), yTransform.GetRotation().Rotator(), SpawnInfo);
 
 					// Store information about walls for next steps
-					Grid[i][j]->val = EGridElementType::F_DestructibleWall;
-					Grid[i][j]->element = Wall;
+					Grid[i][j]->ElementType = EGridElementType::F_DestructibleWall;
+					Grid[i][j]->Element = Wall;
 				}
 				
 			}
@@ -206,10 +206,22 @@ void AFloorGridActor::CleanupInstances()
 	// Clear Grid from spawned actors
 	for (auto &row : Grid) {
 		for (auto &field : row.GridElement) {
-			if (field.element) {
-				field.element->Destroy();
-				field.val = EGridElementType::F_Empty;
+			if (field.Element) {
+				field.Element->Destroy();
+				field.ElementType = EGridElementType::F_Empty;
 			}
 		}
 	}
+}
+
+
+FVector AFloorGridActor::SnapIntoGrid(FVector Position)
+{
+	FVector RelativePos = Position - GetActorTransform().GetLocation();
+	FVector WorldPos = GetActorTransform().GetLocation();
+
+	float X = (FMath::RoundHalfToEven(RelativePos.X / Spacing) * Spacing);
+	float Y = (FMath::RoundHalfToEven(RelativePos.Y / Spacing) * Spacing);
+
+	return FVector(WorldPos.X + X, WorldPos.Y + Y, Position.Z);
 }

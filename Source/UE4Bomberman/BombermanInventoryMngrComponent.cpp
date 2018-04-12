@@ -53,6 +53,7 @@ void UBombermanInventoryMngrComponent::PlaceBomb()
 		SpawnInfo.Owner = Owner;
 		SpawnInfo.Instigator = Owner;
 		SpawnInfo.bDeferConstruction = false;
+		SpawnInfo.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 		// Calculate snapped position of bomb
 		FTransform bombTransform = FTransform(Owner->GetActorLocation());

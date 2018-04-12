@@ -33,12 +33,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
 	int BombsMax = 1;
 
-
-
-	// Single bomb explosion delay timer
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
-	float BombTimer = 2.f;
-
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

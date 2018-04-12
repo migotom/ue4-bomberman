@@ -31,4 +31,8 @@ public:
 	// Single bomb blast radius
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
 	float BombBlastRadiousTimer = 0.f;
+
+	// Bomberman speed boost multiplier
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Inventory)
+	float SpeedBoost = 0.f;
 };

@@ -58,7 +58,7 @@ void ABombermanPawn::BeginPlay()
 
 	if (BombermanPlayerState)
 	{
-		MovementComponent->Initialize(Collision, BombermanMesh, this);
+		MovementComponent->Initialize(Collision, BombermanMesh, this, BombermanPlayerState);
 		InventoryManager->Initialize(this, BombermanPlayerState);
 	}
 

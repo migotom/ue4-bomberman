@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
 #include "Destroyable_Interface.h"
 #include "BombActor.generated.h"
 
@@ -18,6 +19,9 @@ class UE4BOMBERMAN_API ABombActor : public AActor, public IDestroyableInterface
 public:	
 	// Constructs an instance with default values for this actor's properties
 	ABombActor();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomb)
+	USphereComponent *Collision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Bomb)
 	UStaticMeshComponent *Mesh;

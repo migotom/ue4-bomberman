@@ -7,6 +7,7 @@
 #include "Components/SphereComponent.h"
 #include "BombermanMovementComponent.generated.h"
 
+class ABombermanPlayerState;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class UE4BOMBERMAN_API UBombermanMovementComponent : public UActorComponent
@@ -24,7 +25,10 @@ public:
 	USphereComponent *OwnerMovementComponent = nullptr;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Owner)
-	UStaticMeshComponent *OwnerMesh;
+	UStaticMeshComponent *OwnerMesh = nullptr;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Owner)
+	ABombermanPlayerState *PlayerState = nullptr;
 
 	// Value used to calculate physics forward force
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Owner)
@@ -53,7 +57,7 @@ public:
 	// @param[in]	setmesh			Pointer to pawn's mesh component
 	// @param[in]	setowner		Pointer to pawn itself (owner of movement component)
 	UFUNCTION(BlueprintCallable, Category = "Movement")
-	void Initialize(USphereComponent *setcomponent, UStaticMeshComponent *setmesh, AActor *setowner);
+	void Initialize(USphereComponent *setcomponent, UStaticMeshComponent *setmesh, AActor *setowner, ABombermanPlayerState *setplayerstate);
 
 	// Move Bomberman up/down
 	// @param[in]	val				Speed of movement -1 ... 1

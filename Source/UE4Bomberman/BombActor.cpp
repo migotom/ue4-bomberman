@@ -11,12 +11,19 @@ ABombActor::ABombActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	Collision = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere collision"));
+	Collision->SetSphereRadius(49.5f);
+
+	// Set collision and constraints for movement
+	this->SetRootComponent(Collision);
+
 	// Set mesh
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	this->SetRootComponent(Mesh);
+	Mesh->AttachToComponent(Collision, FAttachmentTransformRules::KeepRelativeTransform);
 
 	// Disable collision for bomb mesh (only blas should have any effect)
-	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	Collision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 // Called when the game starts or when spawned
@@ -51,6 +58,7 @@ bool ABombActor::Kill_Implementation()
 		return true;
 	}
 	bExploded = true;
+	UE_LOG(LogTemp, Warning, TEXT("ABombActor::Kill_Implementation"));
 
 	FVector TraceStart = Mesh->GetComponentLocation();
 
@@ -72,10 +80,11 @@ bool ABombActor::Kill_Implementation()
 		GetWorld()->LineTraceMultiByChannel(HitResults, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility);
 		for (auto Hit : HitResults) {
 			if (Hit.Actor.IsValid()) {
-				UE_LOG(LogTemp, Warning, TEXT("Hit %s"), *Hit.Actor->GetName());
+				UE_LOG(LogTemp, Warning, TEXT("ABombActor::Kill_Implementation Hit %s"), *Hit.Actor->GetName());
 				HitedActors.AddUnique(Hit.Actor.Get());				
 			}
-		}			
+		}
+
 		// TODO
 		// Generace particle effects with explosion animation
 	}

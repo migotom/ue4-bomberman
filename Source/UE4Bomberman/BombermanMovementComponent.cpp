@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BombermanMovementComponent.h"
+#include "BombermanPlayerState.h"
 #include "Engine.h"
 
 // Sets default values for this component's properties
@@ -41,8 +42,8 @@ void UBombermanMovementComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 void UBombermanMovementComponent::MoveRight(float val)
 {
-	if (OwnerMovementComponent) {
-		MovementDirection = FVector(val * ForwardForceMultiplier, MovementDirection.Y, 0.f);
+	if (OwnerMovementComponent && PlayerState) {
+		MovementDirection = FVector(val * ForwardForceMultiplier * (1.f + PlayerState->SpeedBoost), MovementDirection.Y, 0.f);
 		if (val > 0.f)
 		{
 			DesiredMeshRotation = FRotator(0.f, 0.f, 0.f);
@@ -55,8 +56,8 @@ void UBombermanMovementComponent::MoveRight(float val)
 
 void UBombermanMovementComponent::MoveUp(float val)
 {
-	if (OwnerMovementComponent) {
-		MovementDirection = FVector(MovementDirection.X, val * ForwardForceMultiplier, 0.f);
+	if (OwnerMovementComponent && PlayerState) {
+		MovementDirection = FVector(MovementDirection.X, val * ForwardForceMultiplier * (1.f + PlayerState->SpeedBoost), 0.f);
 		if (val > 0.f)
 		{
 			DesiredMeshRotation = FRotator(0.f, 90.f, 0.f);
@@ -68,9 +69,10 @@ void UBombermanMovementComponent::MoveUp(float val)
 }
 
 
-void UBombermanMovementComponent::Initialize(USphereComponent *setcomponent, UStaticMeshComponent *setmesh, AActor *setowner)
+void UBombermanMovementComponent::Initialize(USphereComponent *setcomponent, UStaticMeshComponent *setmesh, AActor *setowner, ABombermanPlayerState *setplayerstate)
 {
 	OwnerMovementComponent = setcomponent;
 	OwnerMesh = setmesh;
 	Owner = setowner;
+	PlayerState = setplayerstate;
 }
